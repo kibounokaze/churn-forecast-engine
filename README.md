@@ -30,7 +30,7 @@ Built with a focus on **real-world deployment** and **business impact**, this pr
 | Random Forest          | ~44%         | High            | Moderate | ~0.86    |
 | **SVC (Selected)**     | **~74%**     | Moderate        | **Best** | **~0.859**|
 
-**Why SVC Was Selected**  
+**Why SVC Was Selected :**  
 
 In churn prediction, **false negatives (missing a churner)** are far more expensive than false positives.  
 SVC with class weights and RBF kernel delivered the **highest recall** on the minority class while maintaining strong discrimination — making it the optimal choice for minimizing revenue loss.
