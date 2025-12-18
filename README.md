@@ -2,9 +2,11 @@
 
 **A production-ready customer churn prediction system** built with classical ML, featuring interactive single & batch inference, business insights, retention ROI calculator, and explainable predictions.
 
-**Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
+## 🔗 **Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
 
-**RetentionAI Demo Video**: 🔗 https://github.com/user-attachments/assets/20f17b18-dbff-42a4-a537-ac512484b1e6
+## 🎥 **RetentionAI Demo Video**: 
+
+https://github.com/user-attachments/assets/20f17b18-dbff-42a4-a537-ac512484b1e6
 
 *(Click to watch a full walkthrough of the dashboard — single prediction, batch processing, ROI calculator, and model insights)*
 
@@ -26,7 +28,7 @@ Built with a focus on **real-world deployment** and **business impact**, this pr
 |------------------------|--------------|-----------------|----------|----------|
 | Logistic Regression    | ~70%         | Moderate        | Moderate | ~0.83    |
 | Random Forest          | ~44%         | High            | Moderate | ~0.86    |
-| **SVC (Selected)**     | **~74%**     | Moderate        | **Best** | **0.859**|
+| **SVC (Selected)**     | **~74%**     | Moderate        | **Best** | **~0.859**|
 
 **Why SVC Was Selected**  
 
