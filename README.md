@@ -4,7 +4,7 @@
 
 **Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
 
-[![App Demo Video] <video src="https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4" width="800" controls></video>]
+**RetentionAI Demo Video**: 🔗 [https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4](https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4)
 
 *(Click to watch a full walkthrough of the dashboard — single prediction, batch processing, ROI calculator, and model insights)*
 
@@ -63,6 +63,7 @@ SVC with class weights and RBF kernel delivered the **highest recall** on the mi
 
 ## 📁 Repository Structure
 
+```bash
 churn-forecast-engine/
 ├── app/
 │   └── app.py                      # Streamlit dashboard
@@ -79,6 +80,7 @@ churn-forecast-engine/
 ├── requirements.txt
 ├── .env.example                    # Configuration template
 └── README.md
+```
 
 ## 🔧 Tech Stack & Tools
 
@@ -117,7 +119,7 @@ source venv/bin/activate    # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 streamlit run app/app.py
-
+```
 
 🌐 Deployment
 
