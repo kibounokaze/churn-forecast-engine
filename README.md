@@ -136,9 +136,11 @@ Deployed on Streamlit Community Cloud using GitHub integration and secrets manag
 **Piyush Patil**
 
 Data Scientist | Machine Learning Engineer
+
 Built December 2025
 
-Thank you for exploring RetentionAI!
+Thank you for exploring **RetentionAI!**
+
 This project showcases full-cycle ML engineering: from data to deployed, business-impactful application.
 
 ## ⭐ Star the repo if you found it valuable!
