@@ -4,7 +4,8 @@
 
 **Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
 
-[![App Demo Video](https://img.youtube.com/vi/YOUR_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID_HERE)  
+[![App Demo Video] <video src="https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4" width="800" controls></video>]
+
 *(Click to watch a full walkthrough of the dashboard — single prediction, batch processing, ROI calculator, and model insights)*
 
 ## 🚀 Project Overview
