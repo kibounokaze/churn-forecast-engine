@@ -4,7 +4,7 @@
 
 **Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
 
-**RetentionAI Demo Video**: 🔗 [https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4](https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4)
+**RetentionAI Demo Video**: 🔗 [![RetentionAI Demo Video](https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4)](https://github.com/kibounokaze/churn-forecast-engine/blob/main/assets/raw/demo-file-video.mp4)
 
 *(Click to watch a full walkthrough of the dashboard — single prediction, batch processing, ROI calculator, and model insights)*
 
@@ -85,11 +85,15 @@ churn-forecast-engine/
 ## 🔧 Tech Stack & Tools
 
 - **Python 3.10+**
-- **scikit-learn**: SVC, GridSearchCV, permutation importance
-- **Streamlit**: Interactive dashboard with batch processing
-- **Pandas, Matplotlib, Seaborn**: Data processing & visualization
-- **python-dotenv**: Modular, secure configuration
-- **Streamlit Community Cloud**: Free deployment with secrets management
+- **scikit-learn** : SVC, GridSearchCV, permutation importance
+- **Streamlit** : Interactive dashboard with batch processing
+- **Pandas, Matplotlib, Seaborn** : Data processing & visualization
+- **python-dotenv** : Modular, secure configuration
+- **Streamlit Community Cloud** : Free deployment with secrets management
+
+## 📚 Data Source and Attribution
+
+The data used in this project is the **[Bank Customer Churn Dataset](https://www.kaggle.com/datasets/gauravtopre/bank-customer-churn-dataset/data)**, originally hosted on Kaggle.
 
 ## 🛠 Challenges & Solutions
 
@@ -101,11 +105,11 @@ churn-forecast-engine/
 
 ## 🚀 Future Improvements (Potential Extensions)
 
-- Integrate XGBoost or LightGBM for comparison
-- Add probability calibration for better risk scoring
-- Connect to real-time database/API
-- Add customer segmentation (clustering)
-- Email/SMS alert integration for high-risk predictions
+- Add **probability calibration** (Platt scaling or isotonic) for more reliable risk scores
+- Implement **SHAP values** for global and local feature explanations
+- Build a **real-time API** using FastAPI for integration into production systems
+- Add **customer segmentation** (K-means or DBSCAN) for targeted campaigns
+- Integrate **automated alerts** (email/Slack) for high-risk predictions
 
 ## 🛠 Local Setup
 
@@ -121,20 +125,21 @@ pip install -r requirements.txt
 streamlit run app/app.py
 ```
 
-🌐 Deployment
+## 🌐 Deployment
 
 Deployed on Streamlit Community Cloud using GitHub integration and secrets management.
 
-👨‍💻 Author
+## 👨‍💻 Author
 
-Piyush Patil
+**Piyush Patil**
+
 Data Scientist | Machine Learning Engineer
 Built December 2025
 
 Thank you for exploring RetentionAI!
 This project showcases full-cycle ML engineering: from data to deployed, business-impactful application.
 
-⭐ Star the repo if you found it valuable!
+## ⭐ Star the repo if you found it valuable!
 
 Feel free to fork and extend it.
 Feedback and contributions welcome!
