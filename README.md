@@ -4,7 +4,7 @@
 
 **Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
 
-**RetentionAI Demo Video**: 🔗 [![RetentionAI Demo Video](https://github.com/user-attachments/assets/20f17b18-dbff-42a4-a537-ac512484b1e6)](https://github.com/user-attachments/assets/20f17b18-dbff-42a4-a537-ac512484b1e6)
+**RetentionAI Demo Video**: 🔗 https://github.com/user-attachments/assets/20f17b18-dbff-42a4-a537-ac512484b1e6
 
 *(Click to watch a full walkthrough of the dashboard — single prediction, batch processing, ROI calculator, and model insights)*
 
