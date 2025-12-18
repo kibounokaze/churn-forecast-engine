@@ -1,145 +1,137 @@
-# 📊 Customer Churn Prediction
+# RetentionAI: Churn Forecast Engine & Risk Intelligence
 
-A machine learning project aimed at predicting customer **churn** using classical ML models, exploratory data analysis, preprocessing pipelines, and model comparison experiments.
+**A production-ready customer churn prediction system** built with classical ML, featuring interactive single & batch inference, business insights, retention ROI calculator, and explainable predictions.
 
+**Live Demo**: 🔗 [https://churn-forecast-engine-demo-pubp.streamlit.app/](https://churn-forecast-engine-demo-pubp.streamlit.app/)
+
+[![App Demo Video](https://img.youtube.com/vi/YOUR_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID_HERE)  
+*(Click to watch a full walkthrough of the dashboard — single prediction, batch processing, ROI calculator, and model insights)*
 
 ## 🚀 Project Overview
 
-Customer churn prediction is a critical problem for businesses, especially subscription- and service-based companies.
+Customer churn is one of the most critical challenges for subscription-based businesses. Early detection enables proactive retention, significantly reducing revenue loss.
 
-In this project, we explore different machine learning techniques to identify customers who are likely to churn and require proactive engagement.
+**RetentionAI** is an end-to-end ML solution that:
+- Predicts churn risk at individual and batch level
+- Provides actionable insights and risk drivers
+- Quantifies business impact through ROI estimation
+- Offers full interpretability for stakeholder trust
 
-This repository includes:
+Built with a focus on **real-world deployment** and **business impact**, this project demonstrates strong data science and ML engineering skills.
 
-* Clean project structure following best practices
-* Clear separation between raw and processed data
-* Fully reproducible notebooks
-* A baseline comparison of **Logistic Regression**, **Random Forest**, and **SVC**
-* A focus on handling class imbalance
-* Selection of **SVC** as the final model based on **recall performance for churners**
+## 📊 Key Results (Test Set)
 
-## 📚 Data Source and Attribution
+| Model                  | Churn Recall | Churn Precision | Churn F1 | ROC-AUC  |
+|------------------------|--------------|-----------------|----------|----------|
+| Logistic Regression    | ~70%         | Moderate        | Moderate | ~0.83    |
+| Random Forest          | ~44%         | High            | Moderate | ~0.86    |
+| **SVC (Selected)**     | **~74%**     | Moderate        | **Best** | **0.859**|
 
-The data used in this project is the **[Bank Customer Churn Dataset](https://www.kaggle.com/datasets/gauravtopre/bank-customer-churn-dataset/data)**, originally hosted on Kaggle.
+**Why SVC Was Selected**  
 
-## 🎯 Goal of the Project
+In churn prediction, **false negatives (missing a churner)** are far more expensive than false positives.  
+SVC with class weights and RBF kernel delivered the **highest recall** on the minority class while maintaining strong discrimination — making it the optimal choice for minimizing revenue loss.
 
-Our main objective is to **detect churners as accurately as possible**.
+## 🎯 Core Features
 
-In churn prediction:
+### 🔮 Single Customer Prediction
 
-* Missing a churner (**false negative**) is costly
-* We prefer a model that captures the majority of actual churners
-* **Recall** and **F1-score** for the minority class are more important than accuracy
+- Input customer profile via intuitive form
+- Instant churn probability & risk level (Low/Medium/High)
+- Personalized risk drivers (e.g., "Inactive member", "Older age", "Germany resident")
+- Recommended retention actions
+- Downloadable prediction report
 
-After comparing multiple models, **SVC demonstrated the strongest recall and F1-score for churners**, making it the most suitable choice for this business scenario.
+### 📁 Batch Prediction
+- Upload CSV with thousands of customers
+- Robust preprocessing (case-insensitive columns, flexible Yes/No handling)
+- Risk stratification (High/Medium/Low)
+- Summary metrics + full results download
+
+### 📊 Business Overview
+- Key metrics: Total customers, churn rate, average salary
+- Interactive visualizations (churn distribution, country-wise rates, age vs balance)
+- Model comparison card explaining selection rationale
+- **Top 10 High-Risk Customer Profiles** — priority targets for retention campaigns
+- **Retention ROI Calculator** — estimate annual savings from reducing churn
+
+### 🧠 Model Insights
+- Detailed rationale for choosing SVC over alternatives
+- Permutation feature importance (top drivers: activity, age, products, country)
+- Transparent evaluation metrics
 
 ## 📁 Repository Structure
 
-* `project-root/`
-    * `app/`
-        * `app.py` # Streamlit app
-    * `data/`
-        * `raw/` # Original dataset(s)
-        * `processed/` # Cleaned, transformed, feature-engineered data
-    * `models/`
-        * `model.pkl` # Final saved model
-        * `scaler.pkl` # Scaler
-    * `notebooks/`
-        * `data_exploration.ipynb` # EDA
-        * `data_preprocessing.ipynb` # Preprocessing
-        * `model_building.ipynb` # Model training
-    * `requirements.txt` # Python dependencies
-    * `README.md` # Project documentation
+churn-forecast-engine/
+├── app/
+│   └── app.py                      # Streamlit dashboard
+├── data/
+│   ├── raw/churn_data.csv          # Original Kaggle dataset
+│   └── processed/                  # Train/test splits & scaled data
+├── models/
+│   ├── model.pkl                   # Tuned SVC model
+│   └── scaler.pkl                  # Feature scaler
+├── notebooks/
+│   ├── data_exploration.ipynb      # Comprehensive EDA
+│   ├── data_preprocessing.ipynb    # Encoding, scaling, splitting
+│   └── model_building.ipynb        # Model comparison & tuning
+├── requirements.txt
+├── .env.example                    # Configuration template
+└── README.md
 
-## 🔍 Methodology
+## 🔧 Tech Stack & Tools
 
-### 1. Exploratory Data Analysis (EDA)
+- **Python 3.10+**
+- **scikit-learn**: SVC, GridSearchCV, permutation importance
+- **Streamlit**: Interactive dashboard with batch processing
+- **Pandas, Matplotlib, Seaborn**: Data processing & visualization
+- **python-dotenv**: Modular, secure configuration
+- **Streamlit Community Cloud**: Free deployment with secrets management
 
-The EDA notebook covers:
+## 🛠 Challenges & Solutions
 
-* Distribution of numerical and categorical features
-* Missing value analysis
-* Outliers and correlations
-* Class imbalance visualization
-* Behavioral insights and patterns linked to churn
+- **Class Imbalance (~20% churn)** → Used class weights instead of resampling to preserve data integrity
+- **High Recall Requirement** → Prioritized recall over precision based on business cost analysis
+- **Batch Inference Robustness** → Built flexible preprocessing to handle varied input formats
+- **Interpretability** → Added permutation importance and per-prediction explanations
+- **Deployment Configuration** → Used environment variables and Streamlit secrets for clean, secure setup
 
-### 2. Data Preprocessing
+## 🚀 Future Improvements (Potential Extensions)
 
-Performed in `data_preprocessing.ipynb`, including:
+- Integrate XGBoost or LightGBM for comparison
+- Add probability calibration for better risk scoring
+- Connect to real-time database/API
+- Add customer segmentation (clustering)
+- Email/SMS alert integration for high-risk predictions
 
-* Handling missing values
-* Encoding categorical variables
-* Feature scaling
-* Train/test split
-* Dealing with class imbalance (class weights)
-* Saving processed datasets for reproducibility
+## 🛠 Local Setup
 
-> Processed data is stored under: `/data/processed`
+```bash
+git clone https://github.com/kibounokaze/churn-forecast-engine.git
+cd churn-forecast-engine
 
-### 3. Model Training & Evaluation
+python -m venv venv
+source venv/bin/activate    # Windows: venv\Scripts\activate
 
-Implemented models include:
+pip install -r requirements.txt
 
-* Logistic Regression
-* Random Forest Classifier
-* Support Vector Classifier (SVC)
-
-Each model was evaluated using:
-
-* Precision
-* Recall
-* F1-score
-* ROC-AUC
-* Confusion matrices
-* Class-specific performance (especially for churners)
+streamlit run app/app.py
 
 
-## 🧠 Why We Chose SVC as the Final Model
+🌐 Deployment
 
-Churn datasets are typically **imbalanced** (majority non-churners).
+Deployed on Streamlit Community Cloud using GitHub integration and secrets management.
 
-In this scenario:
+👨‍💻 Author
 
-* Accuracy becomes misleading
-* The focus shifts to the positive class (**churners**)
-* Missing churners introduces **high business risk**
+Piyush Patil
+Data Scientist | Machine Learning Engineer
+Built December 2025
 
-| Model | Churn Recall | Churn Precision | Churn F1 | ROC-AUC |
-| :--- | :--- | :--- | :--- | :--- |
-| Logistic Regression | Moderate | Low | Low | Moderate |
-| Random Forest | Low | High | Moderate | High |
-| **SVC** | **Highest** | Moderate | **Highest** | **Highest** |
+Thank you for exploring RetentionAI!
+This project showcases full-cycle ML engineering: from data to deployed, business-impactful application.
 
-➡️ **SVC provided the best recall and F1-score for churners**, meaning it identifies the highest number of true churners.
+⭐ Star the repo if you found it valuable!
 
-This aligns with the project objective: **prioritize detecting churners even if it introduces slightly more false positives.**
-
-Thus, **SVC was selected as the recommended model**.
-
-
-## 🎥 Demo Video
-
-https://github.com/user-attachments/assets/1a0ca2b0-cf90-475c-b2fe-c24147920cce
-
-## 🔧 Setup
-
-1.  Create a virtual environment
-
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # macOS/Linux
-    # venv\Scripts\activate     # Windows
-    ```
-
-2.  Install dependencies
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  Run Streamlit Interface
-
-    ```bash
-    streamlit run app/app.py
-    ```
+Feel free to fork and extend it.
+Feedback and contributions welcome!
