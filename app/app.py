@@ -178,8 +178,15 @@ if page == "🔮 Single Customer Prediction":
                     "estimated_salary": estimated_salary,
                     "country_India": 1 if country == "India" else 0,
                     "country_Sri Lanka": 1 if country == "Sri Lanka" else 0,
+                    "country_Bangladesh": 1 if country == "Bangladesh" else 0,
                 }
                 df_input = pd.DataFrame([input_data])
+                expected_columns = [
+                    'credit_score', 'gender', 'age', 'tenure', 'balance', 'products_number',
+                    'credit_card', 'active_member', 'estimated_salary', 'country_India',
+                    'country_Sri Lanka'
+                ]
+                df_input = df_input.reindex(columns=expected_columns, fill_value=0)
                 num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
                 df_input[num_features] = scaler.transform(df_input[num_features])
                 
@@ -283,14 +290,14 @@ elif page == "📁 Batch Prediction":
                     if 'active_member' in input_df.columns:
                         input_df['active_member'] = input_df['active_member'].astype(str).str.lower().map(yes_no_map)
                     
-                    input_df['country'] = input_df['country'].astype(str).str.strip().str.title()  # Normalize country names
-                    
+                    input_df['country'] = input_df['country'].astype(str).str.strip().str.title()
+
                     input_df = pd.get_dummies(input_df, columns=['country'], prefix='country')
-                    
+
                     rename_dict = {}
                     for col in input_df.columns:
                         if col.startswith('country_'):
-                            clean_name = col.replace('_', ' ')  # Ensure space in 'Sri Lanka'
+                            clean_name = col.replace('_', ' ')
                             rename_dict[col] = clean_name
                     
                     input_df.rename(columns=rename_dict, inplace=True)
@@ -300,6 +307,8 @@ elif page == "📁 Batch Prediction":
                         'credit_card', 'active_member', 'estimated_salary', 'country_India',
                         'country_Sri Lanka'
                     ]
+
+                    # Add missing columns with 0
                     for col in required_cols:
                         if col not in input_df.columns:
                             input_df[col] = 0
