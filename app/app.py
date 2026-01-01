@@ -6,6 +6,15 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from dotenv import load_dotenv
 from datetime import datetime
+import locale  # For Indian number formatting
+from fpdf import FPDF  
+
+
+# Set Indian locale for formatting (1,00,000 style)
+try:
+    locale.setlocale(locale.LC_ALL, 'en_IN')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, '')  # Fallback
 
 # ----------------------------- Load Environment Variables -----------------------------
 load_dotenv()
@@ -53,7 +62,7 @@ MODEL_FEATURE_TITLE = os.getenv("MODEL_FEATURE_TITLE")
 RISK_DRIVER_AGE = os.getenv("RISK_DRIVER_AGE")
 RISK_DRIVER_INACTIVE = os.getenv("RISK_DRIVER_INACTIVE")
 RISK_DRIVER_PRODUCTS = os.getenv("RISK_DRIVER_PRODUCTS")
-RISK_DRIVER_GERMANY = os.getenv("RISK_DRIVER_GERMANY")  # You can update this in .env to "Bangladesh resident..."
+RISK_DRIVER_GERMANY = os.getenv("RISK_DRIVER_GERMANY")  
 RISK_DRIVER_HIGH_BALANCE = os.getenv("RISK_DRIVER_HIGH_BALANCE")
 RISK_LOW_PROFILE = os.getenv("RISK_LOW_PROFILE")
 
@@ -77,6 +86,10 @@ def load_artifacts():
 
 model, scaler, df = load_artifacts()
 df = df.drop('customer_id', axis=1)
+
+# Get last updated timestamp for model
+model_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "model.pkl")
+last_updated = datetime.fromtimestamp(os.path.getmtime(model_path)).strftime('%Y-%m-%d %H:%M:%S')
 
 # ----------------------------- Page Config & Style -----------------------------
 st.set_page_config(
@@ -123,6 +136,7 @@ if YOUR_PORTFOLIO:
     st.sidebar.markdown(f"[Portfolio]({YOUR_PORTFOLIO})")
 
 st.sidebar.markdown("---")
+st.sidebar.caption(f"Model Last Updated: {last_updated}")
 st.sidebar.caption("Data: Bank Customer Churn Dataset (Kaggle) • Optimized for detecting churners")
 
 # ============================== Single Customer Prediction ==============================
@@ -151,57 +165,64 @@ if page == "🔮 Single Customer Prediction":
         submitted = st.form_submit_button("🔮 Predict Churn Risk", type="primary")
         
         if submitted:
-            input_data = {
-                "credit_score": credit_score,
-                "gender": 1 if gender == "Male" else 0,
-                "age": age,
-                "tenure": tenure,
-                "balance": balance,
-                "products_number": products_number,
-                "credit_card": 1 if has_credit_card == "Yes" else 0,
-                "active_member": 1 if is_active_member == "Yes" else 0,
-                "estimated_salary": estimated_salary,
-                "country_Bangladesh": 1 if country == "Bangladesh" else 0,
-                "country_Sri_Lanka": 1 if country == "Sri Lanka" else 0,
-            }
-            df_input = pd.DataFrame([input_data])
-            num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
-            df_input[num_features] = scaler.transform(df_input[num_features])
-            
-            prediction = model.predict(df_input)[0]
-            probability = model.predict_proba(df_input)[0][1]
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Churn Prediction", "Yes" if prediction else "No")
-            with col2:
-                st.metric("Churn Probability", f"{probability:.1%}")
-            with col3:
-                if probability < 0.35:
-                    risk, icon, color = "Low Risk", "✅", "risk-low"
-                elif probability < 0.65:
-                    risk, icon, color = "Medium Risk", "⚠️", "risk-medium"
+            try:
+                input_data = {
+                    "credit_score": credit_score,
+                    "gender": 1 if gender == "Male" else 0,
+                    "age": age,
+                    "tenure": tenure,
+                    "balance": balance,
+                    "products_number": products_number,
+                    "credit_card": 1 if has_credit_card == "Yes" else 0,
+                    "active_member": 1 if is_active_member == "Yes" else 0,
+                    "estimated_salary": estimated_salary,
+                    "country_India": 1 if country == "India" else 0,
+                    "country_Sri Lanka": 1 if country == "Sri Lanka" else 0,
+                }
+                df_input = pd.DataFrame([input_data])
+                num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
+                df_input[num_features] = scaler.transform(df_input[num_features])
+                
+                prediction = model.predict(df_input)[0]
+                probability = model.predict_proba(df_input)[0][1]
+                
+                # Confidence interval (simple ±10% for demo)
+                conf_low = max(0, probability - 0.1)
+                conf_high = min(1, probability + 0.1)
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Churn Prediction", "Yes" if prediction else "No")
+                with col2:
+                    st.metric("Churn Probability", f"{probability:.1%} (±10%)")
+                with col3:
+                    if probability < 0.35:
+                        risk, icon, color = "Low Risk", "✅", "risk-low"
+                    elif probability < 0.65:
+                        risk, icon, color = "Medium Risk", "⚠️", "risk-medium"
+                    else:
+                        risk, icon, color = "High Risk", "🚨", "risk-high"
+                    st.markdown(f"<div class='{color}' style='font-size:1.6rem;text-align:center'>{icon}<br>{risk}</div>", unsafe_allow_html=True)
+                
+                st.markdown("### Key Risk Drivers")
+                risks = []
+                if age > 45: risks.append(RISK_DRIVER_AGE)
+                if is_active_member == "No": risks.append(RISK_DRIVER_INACTIVE)
+                if products_number >= 3: risks.append(RISK_DRIVER_PRODUCTS)
+                if country == "Bangladesh": risks.append(RISK_DRIVER_GERMANY)  # High-churn country
+                if balance > 100000 and is_active_member == "No": risks.append(RISK_DRIVER_HIGH_BALANCE)
+                if not risks: risks.append(RISK_LOW_PROFILE)
+                for r in risks: st.markdown(f"• {r}")
+
+                st.markdown("### Recommended Action")
+                if probability > 0.65:
+                    st.error(ACTION_HIGH)
+                elif probability > 0.35:
+                    st.warning(ACTION_MEDIUM)
                 else:
-                    risk, icon, color = "High Risk", "🚨", "risk-high"
-                st.markdown(f"<div class='{color}' style='font-size:1.6rem;text-align:center'>{icon}<br>{risk}</div>", unsafe_allow_html=True)
-            
-            st.markdown("### Key Risk Drivers")
-            risks = []
-            if age > 45: risks.append(RISK_DRIVER_AGE)
-            if is_active_member == "No": risks.append(RISK_DRIVER_INACTIVE)
-            if products_number >= 3: risks.append(RISK_DRIVER_PRODUCTS)
-            if country == "Bangladesh": risks.append(RISK_DRIVER_GERMANY)  # High-churn country
-            if balance > 100000 and is_active_member == "No": risks.append(RISK_DRIVER_HIGH_BALANCE)
-            if not risks: risks.append(RISK_LOW_PROFILE)
-            for r in risks: st.markdown(f"• {r}")
-            
-            st.markdown("### Recommended Action")
-            if probability > 0.65:
-                st.error(ACTION_HIGH)
-            elif probability > 0.35:
-                st.warning(ACTION_MEDIUM)
-            else:
-                st.success(ACTION_LOW)
+                    st.success(ACTION_LOW)
+            except Exception as e:
+                st.error(f"Prediction error: {str(e)}. Please check input values.")
     
     if 'prediction' in locals():
         result_df = pd.DataFrame([{
@@ -213,7 +234,7 @@ if page == "🔮 Single Customer Prediction":
         }])
         csv = result_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Download This Prediction",
+            label="📥 Download This Prediction (CSV)",
             data=csv,
             file_name=f"single_churn_prediction_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
             mime="text/csv"
@@ -250,43 +271,56 @@ elif page == "📁 Batch Prediction":
         
         if st.button("🚀 Run Batch Prediction", type="primary"):
             with st.spinner("Processing..."):
-                input_df = batch_df.copy()
-                input_df.columns = input_df.columns.str.lower().str.replace(' ', '_').str.strip()
+                try:
+                    input_df = batch_df.copy()
+                    input_df.columns = input_df.columns.str.lower().str.replace(' ', '_').str.strip()
+                    
+                    input_df['gender'] = input_df['gender'].astype(str).str.lower().map({"male": 1, "female": 0})
+                    
+                    yes_no_map = {"yes": 1, "no": 0, "true": 1, "false": 0, "1": 1, "0": 0, 1: 1, 0: 0}
+                    if 'credit_card' in input_df.columns:
+                        input_df['credit_card'] = input_df['credit_card'].astype(str).str.lower().map(yes_no_map)
+                    if 'active_member' in input_df.columns:
+                        input_df['active_member'] = input_df['active_member'].astype(str).str.lower().map(yes_no_map)
+                    
+                    input_df['country'] = input_df['country'].astype(str).str.strip().str.title()  # Normalize country names
+                    
+                    input_df = pd.get_dummies(input_df, columns=['country'], prefix='country')
+                    
+                    rename_dict = {}
+                    for col in input_df.columns:
+                        if col.startswith('country_'):
+                            clean_name = col.replace('_', ' ')  # Ensure space in 'Sri Lanka'
+                            rename_dict[col] = clean_name
+                    
+                    input_df.rename(columns=rename_dict, inplace=True)
+                    
+                    required_cols = [
+                        'credit_score', 'gender', 'age', 'tenure', 'balance', 'products_number',
+                        'credit_card', 'active_member', 'estimated_salary', 'country_India',
+                        'country_Sri Lanka'
+                    ]
+                    for col in required_cols:
+                        if col not in input_df.columns:
+                            input_df[col] = 0
+                    
+                    input_df = input_df[required_cols]
+                    num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
+                    input_df[num_features] = scaler.transform(input_df[num_features])
+                    
+                    predictions = model.predict(input_df)
+                    probabilities = model.predict_proba(input_df)[:, 1]
+                    
+                    result_df = batch_df.copy()
+                    result_df['churn_prediction'] = predictions
+                    result_df['churn_probability'] = probabilities
+                    result_df['risk_level'] = result_df['churn_probability'].apply(
+                        lambda p: "High" if p >= 0.65 else "Medium" if p >= 0.35 else "Low"
+                    )
                 
-                input_df['gender'] = input_df['gender'].astype(str).str.lower().map({"male": 1, "female": 0})
-                
-                yes_no_map = {"yes": 1, "no": 0, "true": 1, "false": 0, "1": 1, "0": 0, 1: 1, 0: 0}
-                if 'credit_card' in input_df.columns:
-                    input_df['credit_card'] = input_df['credit_card'].astype(str).str.lower().map(yes_no_map)
-                if 'active_member' in input_df.columns:
-                    input_df['active_member'] = input_df['active_member'].astype(str).str.lower().map(yes_no_map)
-                
-                input_df['country'] = input_df['country'].astype(str).str.capitalize()
-                input_df = pd.get_dummies(input_df, columns=['country'])
-                input_df.rename(columns={
-                    'country_bangladesh': 'country_Bangladesh',
-                    'country_sri lanka': 'country_Sri_Lanka'
-                }, inplace=True)
-                
-                required_cols = ['credit_score', 'gender', 'age', 'tenure', 'balance', 'products_number',
-                                 'credit_card', 'active_member', 'estimated_salary', 'country_Bangladesh', 'country_Sri_Lanka']
-                for col in required_cols:
-                    if col not in input_df.columns:
-                        input_df[col] = 0
-                
-                input_df = input_df[required_cols]
-                num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
-                input_df[num_features] = scaler.transform(input_df[num_features])
-                
-                predictions = model.predict(input_df)
-                probabilities = model.predict_proba(input_df)[:, 1]
-                
-                result_df = batch_df.copy()
-                result_df['churn_prediction'] = predictions
-                result_df['churn_probability'] = probabilities
-                result_df['risk_level'] = result_df['churn_probability'].apply(
-                    lambda p: "High" if p >= 0.65 else "Medium" if p >= 0.35 else "Low"
-                )
+                except Exception as e:
+                    st.error(f"Batch processing error: {str(e)}. Please check CSV format and try again.")
+                    st.stop()
             
             st.success(f"Batch prediction complete for {len(result_df)} customers!")
             
@@ -315,10 +349,10 @@ elif page == "📊 Business Overview":
     churn_rate = df['churn'].mean()
     avg_salary = df['estimated_salary'].mean()
     
-    col1.metric("Total Customers", f"{total:,}")
-    col2.metric("Churned Customers", f"{churned:,}")
+    col1.metric("Total Customers", locale.format_string("%d", total, grouping=True))
+    col2.metric("Churned Customers", locale.format_string("%d", churned, grouping=True))
     col3.metric("Overall Churn Rate", f"{churn_rate:.1%}")
-    col4.metric("Avg Salary", f"₹{avg_salary:,.0f}")
+    col4.metric("Avg Salary", f"₹{locale.format_string('%d', int(avg_salary), grouping=True)}")
     
     st.markdown("---")
     
@@ -344,20 +378,55 @@ elif page == "📊 Business Overview":
     st.dataframe(high_risk[['age', 'balance', 'products_number', 'active_member', 'country', 'estimated_salary', 'churn']])
     st.caption(HIGH_RISK_CAPTION)
     
+    # New: Top 5 High-Risk Customers (run model on full data)
+    st.markdown("---")
+    st.subheader("Top 5 High-Risk Customers (Predicted)")
+    try:
+        full_input = df.copy()
+        full_input['gender'] = full_input['gender'].map({"Male": 1, "Female": 0})
+        full_input = pd.get_dummies(full_input, columns=['country'])
+        full_input.rename(columns={
+            'country_India': 'country_India',
+            'country_Sri Lanka': 'country_Sri Lanka'
+        }, inplace=True)
+        required_cols = [
+            'credit_score', 'gender', 'age', 'tenure', 'balance', 'products_number',
+            'credit_card', 'active_member', 'estimated_salary', 'country_India',
+            'country_Sri Lanka'
+        ]
+        for col in required_cols:
+            if col not in full_input.columns:
+                full_input[col] = 0
+        full_input = full_input[required_cols]
+        num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
+        full_input[num_features] = scaler.transform(full_input[num_features])
+        
+        probs = model.predict_proba(full_input)[:, 1]
+        df['predicted_prob'] = probs
+        top_high_risk = df.nlargest(5, 'predicted_prob')[['age', 'balance', 'products_number', 'active_member', 'country', 'estimated_salary', 'predicted_prob']]
+        st.dataframe(top_high_risk)
+    except Exception as e:
+        st.warning(f"Could not compute high-risk: {str(e)}")
+    
     st.markdown("---")
     
     st.subheader(ROI_TITLE)
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         avg_customer_value = st.number_input(ROI_INPUT_LABEL, 1000, 100000, 10000)
     with col2:
         potential_churn_reduction = st.slider(ROI_SLIDER_LABEL, 5, 50, 20)
+    with col3:
+        avg_lifetime_value = st.slider("Avg Customer Lifetime Value (₹)", 50000, 500000, 100000)
     
-    current_annual_loss = churned * avg_customer_value
+    current_annual_loss = churned * avg_customer_value * (avg_lifetime_value / 100000)
     projected_savings = current_annual_loss * (potential_churn_reduction / 100)
     
-    st.metric(ROI_CURRENT_LOSS, f"₹{current_annual_loss:,.0f}")
-    st.success(ROI_SAVINGS_MSG.format(reduction=potential_churn_reduction, savings=int(projected_savings)))
+    formatted_loss = locale.format_string("%d", int(current_annual_loss), grouping=True)
+    formatted_savings = locale.format_string("%d", int(projected_savings), grouping=True)
+    
+    st.metric(ROI_CURRENT_LOSS, f"₹{formatted_loss}")
+    st.success(ROI_SAVINGS_MSG.format(reduction=potential_churn_reduction, savings=formatted_savings))
     
     st.markdown("---")
     
@@ -365,15 +434,20 @@ elif page == "📊 Business Overview":
     with col1:
         st.subheader("Churn Distribution")
         fig, ax = plt.subplots()
-        df['churn'].value_counts().plot.pie(labels=['Stayed', 'Churned'], autopct='%1.1f%%', colors=['#86efac', '#fca5a5'], ax=ax)
+        churn_counts = df['churn'].value_counts()
+        churn_counts.plot.pie(labels=['Stayed', 'Churned'], autopct='%1.1f%%', colors=['#86efac', '#fca5a5'], ax=ax)
         ax.set_ylabel('')
         st.pyplot(fig)
     
     with col2:
         st.subheader("Churn Rate by Country")
         fig, ax = plt.subplots()
-        df.groupby('country')['churn'].mean().plot(kind='bar', color=['#93c5fd', '#fdba74', '#fca5a5'], ax=ax)
+        country_churn = df.groupby('country')['churn'].mean()
+        colors = {'India': '#138808', 'Sri Lanka': '#1e40af', 'Bangladesh': '#ea580c'}  # Custom colors
+        country_churn.plot(kind='bar', color=[colors.get(x, '#93c5fd') for x in country_churn.index], ax=ax)
         ax.set_ylabel('Churn Rate')
+        for p in ax.patches:
+            ax.annotate(f"{p.get_height():.1%}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='bottom')
         st.pyplot(fig)
     
     st.markdown("---")
@@ -389,6 +463,8 @@ elif page == "📊 Business Overview":
         st.subheader("Churn Rate by Products & Activity")
         fig = sns.barplot(data=df, x='products_number', y='churn', hue='active_member', palette='Set2')
         plt.ylabel('Churn Rate')
+        for p in fig.patches:
+            fig.annotate(f"{p.get_height():.1%}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='bottom')
         st.pyplot(fig.figure)
 
 # ============================== Model Insights ==============================
