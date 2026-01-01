@@ -7,7 +7,6 @@ import seaborn as sns
 from dotenv import load_dotenv
 from datetime import datetime
 import locale  # For Indian number formatting
-from fpdf import FPDF  
 
 
 # Set Indian locale for formatting (1,00,000 style)
