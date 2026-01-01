@@ -53,13 +53,13 @@ MODEL_FEATURE_TITLE = os.getenv("MODEL_FEATURE_TITLE")
 RISK_DRIVER_AGE = os.getenv("RISK_DRIVER_AGE")
 RISK_DRIVER_INACTIVE = os.getenv("RISK_DRIVER_INACTIVE")
 RISK_DRIVER_PRODUCTS = os.getenv("RISK_DRIVER_PRODUCTS")
-RISK_DRIVER_GERMANY = os.getenv("RISK_DRIVER_GERMANY")
+RISK_DRIVER_GERMANY = os.getenv("RISK_DRIVER_GERMANY")  # You can update this in .env to "Bangladesh resident..."
 RISK_DRIVER_HIGH_BALANCE = os.getenv("RISK_DRIVER_HIGH_BALANCE")
 RISK_LOW_PROFILE = os.getenv("RISK_LOW_PROFILE")
 
 # Actions
 ACTION_HIGH = os.getenv("ACTION_HIGH")
-ACTION_MEDIUM = os.getenv("ACTION_MEDIUM" )
+ACTION_MEDIUM = os.getenv("ACTION_MEDIUM")
 ACTION_LOW = os.getenv("ACTION_LOW")
 
 # ----------------------------- Load Artifacts -----------------------------
@@ -135,12 +135,12 @@ if page == "🔮 Single Customer Prediction":
             credit_score = st.number_input("Credit Score", 300, 850, 650)
             age = st.slider("Age", 18, 92, 38)
             tenure = st.slider("Tenure (years)", 0, 10, 5)
-            balance = st.number_input("Balance (€)", 0.0, 250000.0, 0.0, step=1000.0)
+            balance = st.number_input("Balance (₹)", 0.0, 250000.0, 0.0, step=1000.0)
         with col2:
-            estimated_salary = st.number_input("Estimated Salary (€)", 0.0, 200000.0, 50000.0, step=1000.0)
+            estimated_salary = st.number_input("Estimated Salary (₹)", 0.0, 200000.0, 50000.0, step=1000.0)
             products_number = st.selectbox("Number of Products", [1, 2, 3, 4])
             gender = st.selectbox("Gender", ["Male", "Female"])
-            country = st.selectbox("Country", ["France", "Spain", "Germany"])
+            country = st.selectbox("Country", ["India", "Sri Lanka", "Bangladesh"])
         
         col3, col4 = st.columns(2)
         with col3:
@@ -161,8 +161,8 @@ if page == "🔮 Single Customer Prediction":
                 "credit_card": 1 if has_credit_card == "Yes" else 0,
                 "active_member": 1 if is_active_member == "Yes" else 0,
                 "estimated_salary": estimated_salary,
-                "country_Germany": 1 if country == "Germany" else 0,
-                "country_Spain": 1 if country == "Spain" else 0,
+                "country_Bangladesh": 1 if country == "Bangladesh" else 0,
+                "country_Sri_Lanka": 1 if country == "Sri Lanka" else 0,
             }
             df_input = pd.DataFrame([input_data])
             num_features = ["credit_score", "age", "tenure", "balance", "products_number", "estimated_salary"]
@@ -190,7 +190,7 @@ if page == "🔮 Single Customer Prediction":
             if age > 45: risks.append(RISK_DRIVER_AGE)
             if is_active_member == "No": risks.append(RISK_DRIVER_INACTIVE)
             if products_number >= 3: risks.append(RISK_DRIVER_PRODUCTS)
-            if country == "Germany": risks.append(RISK_DRIVER_GERMANY)
+            if country == "Bangladesh": risks.append(RISK_DRIVER_GERMANY)  # High-churn country
             if balance > 100000 and is_active_member == "No": risks.append(RISK_DRIVER_HIGH_BALANCE)
             if not risks: risks.append(RISK_LOW_PROFILE)
             for r in risks: st.markdown(f"• {r}")
@@ -226,11 +226,11 @@ elif page == "📁 Batch Prediction":
     
     sample_data = pd.DataFrame([
         {"credit_score": 650, "age": 42, "tenure": 3, "balance": 75000.0, "products_number": 2, "estimated_salary": 80000.0,
-         "gender": "Male", "country": "Germany", "credit_card": "Yes", "active_member": "No"},
+         "gender": "Male", "country": "Bangladesh", "credit_card": "Yes", "active_member": "No"},
         {"credit_score": 720, "age": 35, "tenure": 8, "balance": 0.0, "products_number": 1, "estimated_salary": 120000.0,
-         "gender": "Female", "country": "France", "credit_card": "Yes", "active_member": "Yes"},
+         "gender": "Female", "country": "India", "credit_card": "Yes", "active_member": "Yes"},
         {"credit_score": 550, "age": 55, "tenure": 1, "balance": 150000.0, "products_number": 3, "estimated_salary": 60000.0,
-         "gender": "Male", "country": "Spain", "credit_card": "No", "active_member": "No"}
+         "gender": "Male", "country": "Sri Lanka", "credit_card": "No", "active_member": "No"}
     ])
     sample_csv = sample_data.to_csv(index=False).encode('utf-8')
     st.download_button(
@@ -264,12 +264,12 @@ elif page == "📁 Batch Prediction":
                 input_df['country'] = input_df['country'].astype(str).str.capitalize()
                 input_df = pd.get_dummies(input_df, columns=['country'])
                 input_df.rename(columns={
-                    'country_germany': 'country_Germany',
-                    'country_spain': 'country_Spain'
+                    'country_bangladesh': 'country_Bangladesh',
+                    'country_sri lanka': 'country_Sri_Lanka'
                 }, inplace=True)
                 
                 required_cols = ['credit_score', 'gender', 'age', 'tenure', 'balance', 'products_number',
-                                 'credit_card', 'active_member', 'estimated_salary', 'country_Germany', 'country_Spain']
+                                 'credit_card', 'active_member', 'estimated_salary', 'country_Bangladesh', 'country_Sri_Lanka']
                 for col in required_cols:
                     if col not in input_df.columns:
                         input_df[col] = 0
@@ -318,7 +318,7 @@ elif page == "📊 Business Overview":
     col1.metric("Total Customers", f"{total:,}")
     col2.metric("Churned Customers", f"{churned:,}")
     col3.metric("Overall Churn Rate", f"{churn_rate:.1%}")
-    col4.metric("Avg Salary", f"€{avg_salary:,.0f}")
+    col4.metric("Avg Salary", f"₹{avg_salary:,.0f}")
     
     st.markdown("---")
     
@@ -356,7 +356,7 @@ elif page == "📊 Business Overview":
     current_annual_loss = churned * avg_customer_value
     projected_savings = current_annual_loss * (potential_churn_reduction / 100)
     
-    st.metric(ROI_CURRENT_LOSS, f"€{current_annual_loss:,.0f}")
+    st.metric(ROI_CURRENT_LOSS, f"₹{current_annual_loss:,.0f}")
     st.success(ROI_SAVINGS_MSG.format(reduction=potential_churn_reduction, savings=int(projected_savings)))
     
     st.markdown("---")
@@ -401,7 +401,7 @@ else:
     st.subheader(MODEL_FEATURE_TITLE)
     importance = [
         ('active_member', 0.22), ('age', 0.18), ('products_number', 0.14),
-        ('country_Germany', 0.10), ('balance', 0.08), ('credit_score', 0.05),
+        ('country_Bangladesh', 0.10), ('balance', 0.08), ('credit_score', 0.05),
         ('tenure', 0.03), ('estimated_salary', 0.02)
     ]
     imp_df = pd.DataFrame(importance, columns=['Feature', 'Importance']).sort_values('Importance', ascending=True)

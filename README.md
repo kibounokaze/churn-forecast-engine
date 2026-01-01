@@ -41,7 +41,7 @@ SVC with class weights and RBF kernel delivered the **highest recall** on the mi
 
 - Input customer profile via intuitive form
 - Instant churn probability & risk level (Low/Medium/High)
-- Personalized risk drivers (e.g., "Inactive member", "Older age", "Germany resident")
+- Personalized risk drivers (e.g., "Inactive member", "Older age", "higher churn country resident")
 - Recommended retention actions
 - Downloadable prediction report
 
